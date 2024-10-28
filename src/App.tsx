@@ -408,6 +408,10 @@ function App() {
   };
 
   const handleContinue = () => {
+    toast.error(
+      "Did you make sure to donate to Bryan? He could really use some money!",
+      { duration: 4000 }
+    );
     let minstudentnum = 0;
     let maxstudentnum = 0;
     workjobs.forEach((workjob) => {
