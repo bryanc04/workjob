@@ -1,46 +1,65 @@
-# Getting Started with Create React App
+# Automatic Workjob Assigner
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<p align="center"><a href="https://www.bryanchu.ng"><img src="https://i.postimg.cc/mD0LqWYc/logo.png" alt="bryanchu.ng" width="200"/></a></p>
 
-## Available Scripts
+![Google Chrome](https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white)![Safari](https://img.shields.io/badge/Safari-000000?style=for-the-badge&logo=Safari&logoColor=white)![Tor](https://img.shields.io/badge/Tor-7D4698?style=for-the-badge&logo=Tor-Browser&logoColor=white)![Edge](https://img.shields.io/badge/Edge-0078D7?style=for-the-badge&logo=Microsoft-edge&logoColor=white)
 
-In the project directory, you can run:
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=green)
 
-### `npm start`
+![Windows 11](https://img.shields.io/badge/Windows%2011-%230079d5.svg?style=for-the-badge&logo=Windows%2011&logoColor=white)![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Developed by Bryan Chung (<a href="https://www.bryanchu.ng">www.bryanchu.ng</a>)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+A functioning browser, preferably among the ones listed above, will suffice (for now).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Also, the following files are required (headers are case-sensitive):
 
-### `npm run build`
+### 1. Students File (.csv)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Heading     | Value                                                    | Example     |
+| ----------- | -------------------------------------------------------- | ----------- |
+| Personal ID | Internal ID of student                                   | 3006        |
+| Full Name   | Full Name of student                                     | Bryan Chung |
+| Grade       | Grade of student                                         | 12          |
+| D1B1        | 0 (indicating not free D1B1) or 1 (indicating free D1B1) | 1           |
+| D2B2        | 0 (indicating not free D2B2) or 1 (indicating free D2B2) | 0           |
+| ...         | ...                                                      | ...         |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+(The DxBy list should continue for all Day-Block arrangements)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. Workjobs File (.csv)
 
-### `npm run eject`
+| Heading  | Value                                                                                | Example                                                                            |
+| -------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| name     | Name of workjob                                                                      | Dining Hall                                                                        |
+| type     | T (if the workjob does not meet every block) or E (if the workjob meets every block) | E                                                                                  |
+| min      | Minimum number of students, for each block if type is E or in total if type is T     | 6                                                                                  |
+| max      | Maximum number of students, for each block if type is E or in total if type is T     | 8                                                                                  |
+| priority | A number from 1-10 indicating how important the workjob is (lower is more important) | 5                                                                                  |
+| periods  | The periods or blocks when the workjob meets                                         | 1,2,3 (if meeting on certain periods) or B1, B3, B4 (if meeting on certain blocks) |
+| id       | The portion after the colon (:) as it appears on the veracross database              | DINING-F                                                                           |
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 3. All Classes File (.csv)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+| Heading           | Value                                        | Example            |
+| ----------------- | -------------------------------------------- | ------------------ |
+| Internal Class ID | Internal class ID as it appears on veracross | 91206              |
+| Class ID          | Class ID as it appears on veracross          | D1-B2-WJ:ATHCAGE-F |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Usage
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Visit: <a href="https://topicsa-workjob.netlify.app/">link</a>
 
-## Learn More
+Upon successful file upload and continuing, the program automatically assigns students to workjobs.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+[![Screenshot-2024-10-27-at-7-59-38-PM.png](https://i.postimg.cc/vZjN58b6/Screenshot-2024-10-27-at-7-59-38-PM.png)](https://postimg.cc/qNswTTtk)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+By clicking the checkboxes on the left, the user can select which workjobs are visible and which ones are not.
+
+On the bottom left, the user can choose to export the current status to two formats, .txt and .csv. The .txt allows for a more human-readable version of the current status, while the .csv is in the format the veracross database requires.
+
+Also, save allows the user to save current progress, and even on tab exit or refresh the current work progress will save. Restart will revert to the original status before any changes were made.
+
+The red boxes in each workjob shows blocks where the workjob does not meet. Also, hovering on a student shows their frees on the top right, where frees are shown black.
