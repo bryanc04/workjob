@@ -937,7 +937,7 @@ function App() {
                   width: "100%",
                   height: "100vh",
                   gridTemplateColumns: `20% ${
-                    leftStudents.length == 0 ? "80%" : "0"
+                    leftStudents.length == 0 ? "80%" : "60% 20%"
                   }`,
                   display: "grid",
                   overflow: "hidden",
