@@ -9,6 +9,7 @@ import { WorkjobBox } from "./Workjobbox";
 import toast, { Toaster } from "react-hot-toast";
 import { FileInput, MantineProvider, Button, Checkbox } from "@mantine/core";
 import "@mantine/core/styles.css";
+import CoffeeIcon from "@mui/icons-material/Coffee";
 import {
   DragDropContext,
   Droppable,
@@ -1170,7 +1171,25 @@ function App() {
                   withAsterisk
                   accept=".csv"
                 />
-
+                <a href="https://paypal.me/bchunger">
+                  <div
+                    style={{
+                      top: "100px",
+                      fontSize: "12px",
+                      display: "grid",
+                      gridTemplateColumns: "auto auto",
+                      width: "130px",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      position: "relative",
+                    }}
+                  >
+                    <CoffeeIcon />
+                    <div style={{ lineHeight: "23px", textAlign: "center" }}>
+                      Buy me a coffee
+                    </div>
+                  </div>
+                </a>
                 {file1 && file2 && file3 && (
                   <Button onClick={handleContinue} style={{ margin: "20px 0" }}>
                     Continue
