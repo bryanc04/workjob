@@ -15,7 +15,32 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
+
 const STORAGE_KEY = "workjob_persistence";
+
+interface StudentCSVFields {
+  "Full Name": string;
+  Grade: string;
+  "Person ID": string;
+  [key: string]: string;
+}
+
+interface WorkjobCSVFields {
+  name: string;
+  type: string;
+  min: string;
+  max: string;
+  priority: string;
+  periods: string;
+  id: string;
+}
+
+interface ClassIDCSVFields {
+  "Class ID": string;
+  "Internal Class ID": string;
+  Description: string;
+  "Grading Periods": string;
+}
 
 function App() {
   const [file1, setFile1] = useState<File | null>(null);
@@ -31,160 +56,336 @@ function App() {
   const [visibleWorkjobs, setVisibleWorkjobs] = useState<Set<string>>(
     new Set()
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleError = (message: string) => {
+    setError(message);
+    toast.error(message);
+    setIsLoading(false);
+  };
+
+  const validateStudentCSV = (data: any[]): data is StudentCSVFields[] => {
+    const requiredFields = ["Full Name", "Grade", "Person ID"];
+    return data.every(
+      (row) =>
+        requiredFields.every((field) => field in row) &&
+        Object.entries(row).every(([key, value]) => typeof value === "string")
+    );
+  };
+
+  const validateWorkjobCSV = (data: any[]): data is WorkjobCSVFields[] => {
+    const requiredFields = [
+      "name",
+      "type",
+      "min",
+      "max",
+      "priority",
+      "periods",
+      "id",
+    ];
+    return data.every(
+      (row) =>
+        requiredFields.every((field) => field in row) &&
+        typeof row.type === "string" &&
+        !isNaN(Number(row.min)) &&
+        !isNaN(Number(row.max)) &&
+        !isNaN(Number(row.priority))
+    );
+  };
+
+  const validateClassIDCSV = (data: any[]): data is ClassIDCSVFields[] => {
+    const requiredFields = [
+      "Class ID",
+      "Internal Class ID",
+      "Description",
+      "Grading Periods",
+    ];
+    return data.every((row) => requiredFields.every((field) => field in row));
+  };
 
   const handleFile1Change = (event: any) => {
-    console.log(event);
+    try {
+      setError(null);
+      setIsLoading(true);
 
-    const file = event;
-    setFile1(file);
-    console.log("File 1 selected:", file);
-    Papa.parse(file, {
-      complete: (result: any) => {
-        console.log("Parsed CSV data:", result.data);
-        let tmpArray: Student[] = [];
-        const students = result.data.map((entry: any) => {
-          tmpArray.push(
-            new Student(
-              entry["Full Name"],
-              entry["Grade"],
-              {
-                D1: [
-                  entry["D1B1"],
-                  entry["D1B2"],
-                  entry["D1B3"],
-                  entry["D1B4"],
-                ],
-                D2: [
-                  entry["D2B2"],
-                  entry["D2B3"],
-                  entry["D2B4"],
-                  entry["D2B5"],
-                ],
-                D3: [
-                  entry["D3B3"],
-                  entry["D3B4"],
-                  entry["D3B5"],
-                  entry["D3B6"],
-                ],
-                D4: [
-                  entry["D4B4"],
-                  entry["D4B5"],
-                  entry["D4B6"],
-                  entry["D4B7"],
-                ],
-                D5: [
-                  entry["D5B5"],
-                  entry["D5B6"],
-                  entry["D5B7"],
-                  entry["D5B1"],
-                ],
-                D6: [
-                  entry["D6B6"],
-                  entry["D6B7"],
-                  entry["D6B1"],
-                  entry["D6B2"],
-                ],
-                D7: [
-                  entry["D7B7"],
-                  entry["D7B1"],
-                  entry["D7B2"],
-                  entry["D7B3"],
-                ],
-              },
-              entry["Person ID"]
-            )
-          );
-        });
-        tmpArray.sort((a, b) => {
-          let aFrees = Object.values(a.frees)
-            .flatMap((arr) => arr)
-            .filter((value) => value === "1").length;
-          let bFrees = Object.values(b.frees)
-            .flatMap((arr) => arr)
-            .filter((value) => value === "1").length;
+      if (!event) {
+        throw new Error("No file selected");
+      }
 
-          if (aFrees < bFrees) {
-            return -1;
+      const file = event;
+      setFile1(file);
+
+      Papa.parse(file, {
+        complete: (result: Papa.ParseResult<any>) => {
+          try {
+            if (result.errors.length > 0) {
+              throw new Error(`CSV parsing error: ${result.errors[0].message}`);
+            }
+
+            if (!validateStudentCSV(result.data)) {
+              throw new Error(
+                "Invalid student CSV format. Please check the required fields."
+              );
+            }
+
+            let tmpArray: Student[] = [];
+            result.data.forEach((entry: any) => {
+              try {
+                if (!entry["Full Name"] || !entry["Grade"]) {
+                  throw new Error(
+                    `Invalid student data for entry: ${JSON.stringify(entry)}`
+                  );
+                }
+
+                tmpArray.push(
+                  new Student(
+                    entry["Full Name"],
+                    entry["Grade"],
+                    {
+                      D1: [
+                        entry["D1B1"],
+                        entry["D1B2"],
+                        entry["D1B3"],
+                        entry["D1B4"],
+                      ],
+                      D2: [
+                        entry["D2B2"],
+                        entry["D2B3"],
+                        entry["D2B4"],
+                        entry["D2B5"],
+                      ],
+                      D3: [
+                        entry["D3B3"],
+                        entry["D3B4"],
+                        entry["D3B5"],
+                        entry["D3B6"],
+                      ],
+                      D4: [
+                        entry["D4B4"],
+                        entry["D4B5"],
+                        entry["D4B6"],
+                        entry["D4B7"],
+                      ],
+                      D5: [
+                        entry["D5B5"],
+                        entry["D5B6"],
+                        entry["D5B7"],
+                        entry["D5B1"],
+                      ],
+                      D6: [
+                        entry["D6B6"],
+                        entry["D6B7"],
+                        entry["D6B1"],
+                        entry["D6B2"],
+                      ],
+                      D7: [
+                        entry["D7B7"],
+                        entry["D7B1"],
+                        entry["D7B2"],
+                        entry["D7B3"],
+                      ],
+                    },
+                    entry["Person ID"]
+                  )
+                );
+              } catch (e) {
+                throw new Error(
+                  `Error processing student: ${
+                    e instanceof Error ? e.message : String(e)
+                  }`
+                );
+              }
+            });
+
+            tmpArray.sort((a, b) => {
+              let aFrees = Object.values(a.frees)
+                .flatMap((arr) => arr)
+                .filter((value) => value === "1").length;
+              let bFrees = Object.values(b.frees)
+                .flatMap((arr) => arr)
+                .filter((value) => value === "1").length;
+
+              return aFrees - bFrees;
+            });
+
+            setStudents(tmpArray);
+            setIsLoading(false);
+            toast.success("Student data loaded successfully");
+          } catch (e) {
+            handleError(
+              `Error processing student file: ${
+                e instanceof Error ? e.message : String(e)
+              }`
+            );
           }
-          if (aFrees > bFrees) {
-            return 1;
-          }
-          return 0;
-        });
-        setStudents(tmpArray);
-      },
-      header: true, // Set this to false if your CSV doesn't have headers
-      skipEmptyLines: true,
-    });
+        },
+
+        header: true,
+        skipEmptyLines: true,
+      });
+    } catch (e) {
+      handleError(
+        `Error handling student file: ${
+          e instanceof Error ? e.message : String(e)
+        }`
+      );
+    }
   };
 
   const handleFile2Change = (event: any) => {
-    if (event) {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      if (!event) {
+        throw new Error("No file selected");
+      }
+
       const file = event;
       setFile2(file);
-      console.log("File 2 selected:", file);
-      Papa.parse(file, {
-        complete: (result: any) => {
-          console.log("Parsed CSV data:", result.data);
-          let tmpArray: Workjob[] = [];
-          const students = result.data.map((entry: any) => {
-            console.log(entry);
-            tmpArray.push(
-              new Workjob(
-                entry["name"],
-                entry["type"],
-                Number(entry["min"]),
-                Number(entry["max"]),
-                entry["priority"],
-                entry["periods"]
-                  .replace("or", ",")
-                  .replace(/ /g, "")
-                  .split(","),
-                entry["id"]
-              )
-            );
-          });
-          tmpArray.sort((a, b) => {
-            if (Number(a.priority) < Number(b.priority)) {
-              return -1;
-            }
-            if (Number(a.priority) > Number(b.priority)) {
-              return 1;
-            }
-            return 0;
-          });
 
-          setWorkjobs(tmpArray);
-          setVisibleWorkjobs(new Set(tmpArray.map((w) => w.name)));
+      Papa.parse(file, {
+        complete: (result: Papa.ParseResult<any>) => {
+          try {
+            if (result.errors.length > 0) {
+              throw new Error(`CSV parsing error: ${result.errors[0].message}`);
+            }
+
+            if (!validateWorkjobCSV(result.data)) {
+              throw new Error(
+                "Invalid workjob CSV format. Please check the required fields."
+              );
+            }
+
+            let tmpArray: Workjob[] = [];
+            result.data.forEach((entry: any) => {
+              try {
+                if (
+                  !entry.name ||
+                  !entry.type ||
+                  isNaN(Number(entry.min)) ||
+                  isNaN(Number(entry.max))
+                ) {
+                  throw new Error(
+                    `Invalid workjob data for entry: ${JSON.stringify(entry)}`
+                  );
+                }
+
+                tmpArray.push(
+                  new Workjob(
+                    entry.name,
+                    entry.type,
+                    Number(entry.min),
+                    Number(entry.max),
+                    entry.priority,
+                    entry.periods
+                      .replace("or", ",")
+                      .replace(/ /g, "")
+                      .split(","),
+                    entry.id
+                  )
+                );
+              } catch (e) {
+                throw new Error(
+                  `Error processing workjob: ${
+                    e instanceof Error ? e.message : String(e)
+                  }`
+                );
+              }
+            });
+
+            tmpArray.sort((a, b) => Number(a.priority) - Number(b.priority));
+
+            setWorkjobs(tmpArray);
+            setVisibleWorkjobs(new Set(tmpArray.map((w) => w.name)));
+            setIsLoading(false);
+            toast.success("Workjob data loaded successfully");
+          } catch (e) {
+            handleError(
+              `Error processing workjob file: ${
+                e instanceof Error ? e.message : String(e)
+              }`
+            );
+          }
         },
+
         header: true,
         skipEmptyLines: true,
       });
+    } catch (e) {
+      handleError(
+        `Error handling workjob file: ${
+          e instanceof Error ? e.message : String(e)
+        }`
+      );
     }
   };
+
   const handleFile3Change = (event: any) => {
-    if (event) {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      if (!event) {
+        throw new Error("No file selected");
+      }
+
       const file = event;
       setFile3(file);
-      Papa.parse(file, {
-        complete: (result: any) => {
-          console.log("Parsed CSV data:", result.data);
-          let tmpArray = new Map();
-          const jobs = result.data.map((entry: any) => {
-            console.log(entry);
-            tmpArray.set(entry["Class ID"], [
-              entry["Internal Class ID"],
-              entry["Class ID"],
-              entry["Description"],
-              entry["Grading Periods"],
-            ]);
-          });
 
-          setWorkjobdata(tmpArray);
+      Papa.parse(file, {
+        complete: (result: Papa.ParseResult<any>) => {
+          try {
+            if (result.errors.length > 0) {
+              throw new Error(`CSV parsing error: ${result.errors[0].message}`);
+            }
+
+            if (!validateClassIDCSV(result.data)) {
+              throw new Error(
+                "Invalid class ID CSV format. Please check the required fields."
+              );
+            }
+
+            let tmpArray = new Map();
+            result.data.forEach((entry: any) => {
+              try {
+                tmpArray.set(entry["Class ID"], [
+                  entry["Internal Class ID"],
+                  entry["Class ID"],
+                  entry["Description"],
+                  entry["Grading Periods"],
+                ]);
+              } catch (e) {
+                throw new Error(
+                  `Error processing class ID: ${
+                    e instanceof Error ? e.message : String(e)
+                  }`
+                );
+              }
+            });
+
+            setWorkjobdata(tmpArray);
+            setIsLoading(false);
+            toast.success("Class ID data loaded successfully");
+          } catch (e) {
+            handleError(
+              `Error processing class ID file: ${
+                e instanceof Error ? e.message : String(e)
+              }`
+            );
+          }
         },
+
         header: true,
         skipEmptyLines: true,
       });
+    } catch (e) {
+      handleError(
+        `Error handling class ID file: ${
+          e instanceof Error ? e.message : String(e)
+        }`
+      );
     }
   };
   const handleWorkjobToggle = (workjobName: string) => {
@@ -198,6 +399,7 @@ function App() {
       return newSet;
     });
   };
+  const stc = require("string-to-color");
 
   const alert = (s: string) => {
     toast.dismiss();
@@ -589,7 +791,6 @@ function App() {
     alert("Current state saved successfully!");
   };
 
-  // Reset persisted data
   const handleReset = () => {
     localStorage.removeItem(STORAGE_KEY);
     window.location.reload();
@@ -605,7 +806,6 @@ function App() {
         visibleWorkjobs: savedVisibleWorkjobs,
       } = JSON.parse(persistedData);
 
-      // Convert plain objects back to class instances
       const reconstructedWorkjobs = savedWorkjobs.map((w: any) => {
         const workjob = new Workjob(
           w.name,
@@ -639,22 +839,17 @@ function App() {
       return;
     }
 
-    // Handle drag from leftover students
     if (source.droppableId === "leftover-students") {
       const [destWorkjob, destDay, destBlock] =
         destination.droppableId.split("-");
 
-      // Clone current states
       const newWorkjobs = [...workjobs];
       const newLeftStudents = [...leftStudents];
 
-      // Find the student being moved
       const student = newLeftStudents[source.index];
 
-      // Remove from leftover students
       newLeftStudents.splice(source.index, 1);
 
-      // Find destination workjob and add student
       const destWorkjobObj = newWorkjobs.find((w) => w.name === destWorkjob);
       if (destWorkjobObj) {
         destWorkjobObj.assignments[
@@ -668,7 +863,6 @@ function App() {
       return;
     }
 
-    // Handle drag between workjobs (existing logic)
     const [sourceWorkjob, sourceDay, sourceBlock] =
       source.droppableId.split("-");
     const [destWorkjob, destDay, destBlock] =
@@ -676,20 +870,17 @@ function App() {
 
     const newWorkjobs = [...workjobs];
 
-    // If dragging to leftover students
     if (destination.droppableId === "leftover-students") {
       const sourceWorkjobObj = newWorkjobs.find(
         (w) => w.name === sourceWorkjob
       );
       if (!sourceWorkjobObj) return;
 
-      // Get the student
       const student =
         sourceWorkjobObj.assignments[
           sourceDay as keyof typeof sourceWorkjobObj.assignments
         ][parseInt(sourceBlock)][source.index];
 
-      // Remove from workjob
       sourceWorkjobObj.assignments[
         sourceDay as keyof typeof sourceWorkjobObj.assignments
       ][parseInt(sourceBlock)].splice(source.index, 1);
@@ -730,7 +921,14 @@ function App() {
       <div className="App">
         <header className="App-header" style={{ height: "100vh" }}>
           <DragDropContext onDragEnd={onDragEnd}>
-            <Toaster />
+            <Toaster
+              toastOptions={{
+                className: "",
+                style: {
+                  fontSize: "17px",
+                },
+              }}
+            />
             {bothEntered ? (
               <div
                 style={{
@@ -765,7 +963,7 @@ function App() {
                       display: "flex",
                     }}
                   >
-                    <div style={{}}>
+                    <div style={{ height: "60%", overflow: "scroll" }}>
                       <h3 style={{ margin: "0 0 10px 0", fontSize: "16px" }}>
                         Filter Workjobs:
                       </h3>
@@ -810,18 +1008,24 @@ function App() {
                       }}
                     >
                       <div style={{ marginLeft: "auto", marginRight: "auto" }}>
-                        <div style={{ marginBottom: "10px" }}>
+                        <div>
                           <Button
                             onClick={handleExportTXT}
                             className="bg-teal-600 hover:bg-teal-700"
+                            size={"xs"}
+                            variant="gradient"
+                            gradient={{ from: "blue", to: "cyan", deg: 90 }}
                           >
                             Export to TXT
                           </Button>
                         </div>
-                        <div style={{ marginBottom: "10px" }}>
+                        <div>
                           <Button
                             onClick={handleExportCSV}
                             className="bg-teal-600 hover:bg-teal-700"
+                            size={"xs"}
+                            variant="gradient"
+                            gradient={{ from: "blue", to: "cyan", deg: 90 }}
                           >
                             Export to CSV
                           </Button>
@@ -831,12 +1035,18 @@ function App() {
                             onClick={handleReset}
                             className="bg-red-600 hover:bg-red-700"
                             style={{ marginRight: "5px" }}
+                            size={"xs"}
+                            variant="gradient"
+                            gradient={{ from: "blue", to: "cyan", deg: 90 }}
                           >
                             Restart
                           </Button>
                           <Button
                             onClick={handleSave}
                             className="bg-green-600 hover:bg-green-700"
+                            size={"xs"}
+                            variant="gradient"
+                            gradient={{ from: "blue", to: "cyan", deg: 90 }}
                           >
                             Save
                           </Button>
@@ -854,6 +1064,10 @@ function App() {
                       style={{
                         display: visibleWorkjobs.has(w.name) ? "block" : "none",
                         fontFamily: "inherit",
+                        // marginTop: "4px",
+                        // marginBottom: "4px",
+                        // border: `2px solid ${stc(w.name)}`,
+                        // borderRadius: "10px",
                       }}
                     >
                       <WorkjobBox
