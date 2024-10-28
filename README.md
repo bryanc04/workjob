@@ -36,6 +36,7 @@ Also, the following files are required (headers are case-sensitive):
 | D1B1    | 0 (indicating not free D1B1) or 1 (indicating free D1B1)   |1|
 | D2B2    | 0 (indicating not free D2B2) or 1 (indicating free D2B2)   |0|
 | ...    | ... |...|
+
 (The DxBy list should continue for all Day-Block arrangements)
 
 
