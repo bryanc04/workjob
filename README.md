@@ -1,6 +1,6 @@
 # Automatic Workjob Assigner
 
-<p align="center"><a href="https://www.bryanchu.ng"><img src="https://i.postimg.cc/mD0LqWYc/logo.png" alt="bryanchu.ng" width="200"/></a></p>
+<p align="center"><img src="https://i.postimg.cc/mD0LqWYc/logo.png" width="200"/></a></p>
 
 ![Google Chrome](https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white)![Safari](https://img.shields.io/badge/Safari-000000?style=for-the-badge&logo=Safari&logoColor=white)![Tor](https://img.shields.io/badge/Tor-7D4698?style=for-the-badge&logo=Tor-Browser&logoColor=white)![Edge](https://img.shields.io/badge/Edge-0078D7?style=for-the-badge&logo=Microsoft-edge&logoColor=white)
 
@@ -8,8 +8,7 @@
 
 ![Windows 11](https://img.shields.io/badge/Windows%2011-%230079d5.svg?style=for-the-badge&logo=Windows%2011&logoColor=white)![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)
 
-Developed by Bryan Chung (<a href="https://www.bryanchu.ng">www.bryanchu.ng</a>)
-
+Developed by Bryan Chung
 ## Getting Started
 
 A functioning browser, preferably among the ones listed above, will suffice (for now).
